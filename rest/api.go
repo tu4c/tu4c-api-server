@@ -3,22 +3,26 @@ package rest
 import "net/http"
 
 type Service interface {
-	Serve(http.ResponseWriter, *http.Request)
+	Serve(*Backend, http.ResponseWriter, *http.Request)
 	Path() string
 }
 
 type RestFunc interface {
-	Get(http.ResponseWriter, *http.Request)
-	Post(http.ResponseWriter, *http.Request)
-	Put(http.ResponseWriter, *http.Request)
-	Delete(http.ResponseWriter, *http.Request)
+	Get(*Backend, http.ResponseWriter, *http.Request)
+	Post(*Backend, http.ResponseWriter, *http.Request)
+	Put(*Backend, http.ResponseWriter, *http.Request)
+	Delete(*Backend, http.ResponseWriter, *http.Request)
+}
+
+type Backend interface {
 }
 
 type API struct {
+	backend  *Backend
 	services map[string]Service
 }
 
-func NewAPI() *API {
+func NewAPI(backend *Backend) *API {
 	var services map[string]Service
 
 	view := NewBadgeView()
@@ -28,6 +32,7 @@ func NewAPI() *API {
 	services[verify.Path()] = verify
 	//
 	return &API{
+		backend:  backend,
 		services: services,
 	}
 }
@@ -42,5 +47,5 @@ func (api *API) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-	go service.Serve(w, req)
+	go service.Serve(api.backend, w, req)
 }

@@ -1,6 +1,9 @@
 package rest
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 const viewPath = "/badge"
 
@@ -14,34 +17,45 @@ func NewBadgeView() *BadgeView {
 	}
 }
 
-func (view *BadgeView) Serve(w http.ResponseWriter, req *http.Request) {
+func (view *BadgeView) Serve(backend *Backend, w http.ResponseWriter, req *http.Request) {
+	if ok := strings.HasPrefix(req.URL.Path, view.Path()); !ok {
+		http.Error(w, "", 0)
+		return
+	}
 	switch req.Method {
 	case http.MethodGet:
-		go view.Get(w, req)
+		go view.Get(backend, w, req)
 	case http.MethodPost:
-		view.Post(w, req)
+		view.Post(backend, w, req)
 	case http.MethodPut:
-		view.Put(w, req)
+		view.Put(backend, w, req)
 	case http.MethodDelete:
-		view.Delete(w, req)
+		view.Delete(backend, w, req)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
-func (view *BadgeView) Get(w http.ResponseWriter, req *http.Request) {
-	//
+func (view *BadgeView) Get(backend *Backend, w http.ResponseWriter, req *http.Request) {
+	target := common.DefaultPathParser(req.URL.Path)
+	if target == "" {
+		http.Error(w, "", 0)
+		return
+	}
+	// backend
+	// w.Header().Add("Content-Type", "application/json")
+	// json.NewEncoder(w).Encode()
 }
 
-func (view *BadgeView) Post(w http.ResponseWriter, req *http.Request) {
+func (view *BadgeView) Post(backend *Backend, w http.ResponseWriter, req *http.Request) {
 	http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 }
 
-func (view *BadgeView) Put(w http.ResponseWriter, req *http.Request) {
+func (view *BadgeView) Put(backend *Backend, w http.ResponseWriter, req *http.Request) {
 	http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 }
 
-func (view *BadgeView) Delete(w http.ResponseWriter, req *http.Request) {
+func (view *BadgeView) Delete(backend *Backend, w http.ResponseWriter, req *http.Request) {
 	http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 }
 
