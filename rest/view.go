@@ -26,11 +26,11 @@ func (view *BadgeView) Serve(backend *Backend, w http.ResponseWriter, req *http.
 	case http.MethodGet:
 		go view.Get(backend, w, req)
 	case http.MethodPost:
-		view.Post(backend, w, req)
+		go view.Post(backend, w, req)
 	case http.MethodPut:
-		view.Put(backend, w, req)
+		go view.Put(backend, w, req)
 	case http.MethodDelete:
-		view.Delete(backend, w, req)
+		go view.Delete(backend, w, req)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}

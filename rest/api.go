@@ -7,7 +7,7 @@ type Service interface {
 	Path() string
 }
 
-type RestFunc interface {
+type RestMethod interface {
 	Get(*Backend, http.ResponseWriter, *http.Request)
 	Post(*Backend, http.ResponseWriter, *http.Request)
 	Put(*Backend, http.ResponseWriter, *http.Request)
@@ -48,4 +48,20 @@ func (api *API) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	go service.Serve(api.backend, w, req)
+}
+
+// check required. can only increase complexity
+func MethodRouter(run RestMethod, backend *Backend, w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+		go run.Get(backend, w, req)
+	case http.MethodPost:
+		go run.Post(backend, w, req)
+	case http.MethodPut:
+		go run.Put(backend, w, req)
+	case http.MethodDelete:
+		go run.Delete(backend, w, req)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
 }
