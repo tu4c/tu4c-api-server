@@ -22,27 +22,30 @@ type GitConn struct {
 }
 
 func (g *GitConn) QueryString() string {
-	return fmt.Sprintf(QueryPrefix + string(DefaultRank) + QueryPostfix)
+	return fmt.Sprintf(QueryPrefix + string(DefaultRankSet) + QueryPostfix)
 }
 
 // it's not concern about queryString. and get only one contributions.
-func (g *GitConn) contribution(given string) (*types.Contribution, error) {
+func (g *GitConn) contributiors(given string) (*[]types.Contributor, error) {
 	_, err := url.Parse(given)
 	if err != nil {
 		return nil, errors.New("")
 	}
+	// get list
 	resp, err := http.Get(given + g.QueryString())
 	if err != nil {
 		return nil, errors.New("")
 	}
+	defer resp.Body.Close()
+
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	var contribution types.Contribution
-	err = json.Unmarshal(data, &contribution)
+	var contributors *[]types.Contributor
+	err = json.Unmarshal(data, contributors)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	return contributors, nil
 }
