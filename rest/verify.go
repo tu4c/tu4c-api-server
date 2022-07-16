@@ -26,11 +26,11 @@ func (verify *BadgeVerify) Serve(backend *Backend, w http.ResponseWriter, req *h
 	case http.MethodGet:
 		go verify.Get(backend, w, req)
 	case http.MethodPost:
-		verify.Post(backend, w, req)
+		go verify.Post(backend, w, req)
 	case http.MethodPut:
-		verify.Put(backend, w, req)
+		go verify.Put(backend, w, req)
 	case http.MethodDelete:
-		verify.Delete(backend, w, req)
+		go verify.Delete(backend, w, req)
 	default:
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
@@ -41,9 +41,18 @@ func (verify *BadgeVerify) Get(backend *Backend, w http.ResponseWriter, req *htt
 		http.Error(w, "", 0)
 		return
 	}
-	// backend
-	// w.Header().Add("Content-Type", "application/json")
-	// json.NewEncoder(w).Encode()
+	enrollInfo, err := backend.EnrollInfo(target)
+	if err != nil {
+		http.Error(w, "", 0)
+		return
+	}
+	ok, err := backend.EnrollVerify(enrollInfo)
+	if !ok && err != nil {
+		// error occured
+		http.Error(w, "", 0)
+		return
+	}
+	// return verify failed
 }
 
 func (verify *BadgeVerify) Post(backend *Backend, w http.ResponseWriter, req *http.Request) {
