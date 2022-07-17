@@ -11,7 +11,7 @@ import (
 
 // in contract: https://api.github.com/repos/[Owner]/[Repo]/contributors?
 const (
-	DefaultRankSet = 500
+	DefaultRankSet = 300
 	QueryPrefix    = "per_page="
 	QueryPostfix   = "&page=1"
 )
